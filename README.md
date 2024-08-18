@@ -1,0 +1,2 @@
+1. Build with `V=0.0.3; docker build . -t "devrols/descheduler:$V" -f build/Dockerfile && docker push "devrols/descheduler:$V"`
+2. Apply with `kubectl apply -f config/rbac.yaml` and `kubectl apply -f deployment.yaml`

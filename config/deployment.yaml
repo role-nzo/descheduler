@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: descheduler
+  namespace: kube-system
+  labels:
+    component: descheduler
+spec:
+  serviceAccountName: custom-descheduler-serviceaccount
+  containers:
+  - name: descheduler
+    image: <IMAGE>:<VERSION>
+    command:
+    - ./descheduler
+    - --kubeconfig=/etc/kubernetes/scheduler.conf
+    volumeMounts:
+    - name: kubeconfig
+      mountPath: /etc/kubernetes/scheduler.conf
+      readOnly: true
+  hostNetwork: true
+  volumes:
+  - name: kubeconfig
+    hostPath:
+      path: /etc/kubernetes/scheduler.conf
+      type: FileOrCreate
+  affinity: #could not work
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: node-role.kubernetes.io/control-plane
+            operator: Exists
+  tolerations:
+  - key: node-role.kubernetes.io/control-plane
+    operator: Exists
+    effect: NoSchedule
+  - key: "node-role.kubernetes.io/master"
+    operator: "Exists"
+    effect: "NoSchedule"
